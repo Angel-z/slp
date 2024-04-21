@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanofans.project.slp.mapper.SlpSubjectChapterMapper">
+
+    <resultMap type="SlpSubjectChapter" id="SlpSubjectChapterResult">
+        <id property="chapterId" column="chapter_id"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="chapterTitle" column="chapter_title"/>
+        <result property="chapterOrder" column="chapter_order"/>
+    </resultMap>
+
+    <sql id="selectSubjectChapterVo">
+        select sc.chapter_id, sc.subject_id, sc.chapter_title, sc.chapter_order
+        from slp_subject_chapter sc
+    </sql>
+
+    <select id="selectSubjectChapterList" parameterType="SlpSubjectChapter" resultMap="SlpSubjectChapterResult">
+        <include refid="selectSubjectChapterVo"/>
+        where subject_id = #{subjectId}
+        <if test="chapterId != null and chapterId != ''">
+            AND chapter_id = #{chapterId}
+        </if>
+        <if test="chapterTitle != null and chapterTitle != ''">
+            AND chapter_title like concat('%', #{chapterTitle}, '%')
+        </if>
+        <if test="chapterOrder != null and chapterOrder != ''">
+            AND chapter_order = #{chapterOrder}
+        </if>
+        order by chapter_order
+    </select>
+
+    <insert id="insertSubjectChapter" parameterType="SlpSubjectChapter" useGeneratedKeys="true" keyProperty="chapterId">
+        insert into slp_subject_chapter(subject_id,
+                                        chapter_title,
+                                        chapter_order)
+        values (#{subjectId},#{chapterTitle}, #{chapterOrder})
+    </insert>
+
+    <update id="updateSubjectChapter" parameterType="SlpSubjectChapter">
+        update slp_subject_chapter
+        <set>
+            chapter_title = #{chapterTitle},
+            chapter_order = #{chapterOrder}
+        </set>
+        where chapter_id = #{chapterId}
+    </update>
+
+    <delete id="deleteSubjectChapter" parameterType="Long">
+        delete from slp_subject_chapter where chapter_id = #{subjectChapterId}
+    </delete>
+
+</mapper>

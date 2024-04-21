@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanofans.project.slp.mapper.SlpGroupMapper">
+    <resultMap type="SlpGroup" id="SlpGroupResult">
+        <id property="groupId" column="group_id"/>
+        <result property="groupName" column="group_name"/>
+        <result property="groupType" column="group_type"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="selectGroupVo">
+        select g.group_id, g.group_name, g.group_type, g.status, g.create_by, g.create_time
+        from slp_group g
+    </sql>
+
+    <select id="selectGroupList" parameterType="SlpGroup" resultMap="SlpGroupResult">
+        <include refid="selectGroupVo"/>
+        <where>
+            <if test="groupName != null and groupName != ''">
+                AND group_name like concat('%', #{groupName}, '%')
+            </if>
+            <if test="groupType != null">
+                AND group_type = #{groupType}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="createBy != null and createBy != 0">
+                AND create_by = #{createBy}
+            </if>
+        </where>
+        ORDER BY g.create_time DESC
+    </select>
+
+    <select id="selectGroupById" parameterType="Long" resultMap="SlpGroupResult">
+        <include refid="selectGroupVo"/>
+        where g.group_id = #{groupId} AND status = 0
+    </select>
+
+    <select id="selectGroupListByIds" parameterType="Long" resultMap="SlpGroupResult">
+        <include refid="selectGroupVo"/>
+        WHERE status = 0 AND
+            group_id in
+        <foreach item="groupId" collection="array" open="(" separator="," close=")">
+            #{groupId}
+        </foreach>
+    </select>
+
+    <insert id="insertGroup" parameterType="SlpGroup" useGeneratedKeys="true" keyProperty="groupId">
+        insert into slp_group(
+        <if test="groupId != null and groupId != 0">group_id,</if>
+        group_name,
+        group_type,
+        create_by,
+        create_time
+        ) values (
+        <if test="groupId != null and groupId != 0">#{groupId},</if>
+        #{groupName},
+        #{groupType},
+        #{createBy},
+        sysdate()
+        )
+    </insert>
+
+    <update id="updateGroup" parameterType="SlpGroup">
+        update slp_group
+        <set>
+        <if test="groupName != null and groupName != ''">group_name = #{groupName},</if>
+        <if test="groupType != null">group_type = #{groupType},</if>
+        <if test="status != null">status = #{status},</if>
+        </set>
+        where group_id = #{groupId}
+    </update>
+
+    <delete id="deleteGroup" parameterType="Long">
+        delete from slp_group
+        where group_id = #{groupId}
+    </delete>
+
+    <delete id="deleteGroupByIds" parameterType="Long">
+        delete from slp_group where group_id in
+        <foreach item="groupId" collection="array" open="(" separator="," close=")">
+            #{groupId}
+        </foreach>
+    </delete>
+
+</mapper>

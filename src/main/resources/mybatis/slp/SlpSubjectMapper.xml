@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanofans.project.slp.mapper.SlpSubjectMapper">
+    <resultMap type="SlpSubject" id="SlpSubjectResult">
+        <id property="subjectId" column="subject_id"/>
+        <result property="subjectTitle" column="subject_title"/>
+        <result property="subjectDescription" column="subject_description"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectSubjectVo">
+        select s.subject_id, s.subject_title, s.subject_description, s.status, s.create_by, s.create_time, s.update_time
+        from slp_subject s
+    </sql>
+
+    <select id="selectSubjectList" parameterType="SlpSubject" resultMap="SlpSubjectResult">
+        <include refid="selectSubjectVo"/>
+        <where>
+            <if test="status != null">
+                AND s.status = #{status}
+            </if>
+            <if test="subjectTitle != null and subjectTitle != ''">
+                AND subject_title like concat('%', #{subjectTitle}, '%')
+            </if>
+            <if test="createBy != null and createBy != 0">
+                AND create_by = #{createBy}
+            </if>
+        </where>
+        ORDER BY s.create_time DESC
+    </select>
+
+    <select id="selectSubjectById" parameterType="Long" resultMap="SlpSubjectResult">
+        <include refid="selectSubjectVo"/>
+        where s.subject_id = #{subjectId}
+    </select>
+
+    <select id="selectSubjectByTitle" parameterType="String" resultMap="SlpSubjectResult">
+        <include refid="selectSubjectVo"/>
+        subject_title like concat('%', #{subjectTitle}, '%')
+    </select>
+
+    <insert id="insertSubject" parameterType="SlpSubject" useGeneratedKeys="true" keyProperty="subjectId">
+        insert into slp_subject(
+        <if test="subjectId != null and subjectId != 0">subject_id,</if>
+        subject_title,
+        subject_description,
+        create_by,
+        create_time
+        ) values (
+        <if test="subjectId != null and subjectId != 0">#{subjectId},</if>
+        #{subjectTitle},
+        #{subjectDescription},
+        #{createBy},
+        sysdate()
+        )
+    </insert>
+    
+    <update id="updateSubject" parameterType="SlpSubject">
+        update slp_subject
+        <set>
+            <if test="subjectTitle != null and subjectTitle != ''">subject_title = #{subjectTitle},</if>
+            <if test="subjectDescription != null and subjectDescription != ''">subject_description = #{subjectDescription},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = sysdate()
+        </set>
+        where subject_id = #{subjectId}
+    </update>
+    
+    <delete id="deleteSubjectById" parameterType="Long">
+        delete from slp_subject where subject_id = #{subjectId}
+    </delete>
+
+    <delete id="deleteSubjectByIds" parameterType="Long">
+        delete from slp_subject where subject_id in
+        <foreach item="subjectId" collection="array" open="(" separator="," close=")">
+            #{subjectId}
+        </foreach>
+    </delete>
+</mapper>

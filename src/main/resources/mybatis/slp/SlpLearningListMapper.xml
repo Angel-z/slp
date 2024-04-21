@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanofans.project.slp.mapper.SlpLearningListMapper">
+    <resultMap type="SlpLearningList" id="SlpLearningListResult">
+        <result property="userId" column="user_id"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="status" column="status"/>
+        <result property="chapterOrder" column="chapter_order"/>
+    </resultMap>
+
+    <sql id="selectLearningListVo">
+        select ll.user_id, ll.subject_id, ll.status, ll.chapter_order
+        from slp_learning_list ll
+    </sql>
+
+    <select id="selectLearningList" parameterType="SlpLearningList" resultMap="SlpLearningListResult">
+        <include refid="selectLearningListVo"/>
+        where ll.user_id = #{userId}
+        <if test="subjectId != null and subjectId != 0">AND ll.subject_id = #{subjectId}</if>
+        ORDER BY ll.status
+    </select>
+
+    <insert id="insertLearningList" parameterType="SlpLearningList">
+        insert into slp_learning_list(user_id, subject_id)
+        values (#{userId}, #{subjectId})
+    </insert>
+
+    <update id="updateLearningList" parameterType="SlpLearningList">
+        update slp_learning_list
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="chapterOrder != null">chapter_order = #{chapterOrder},</if>
+        </set>
+        where user_id = #{userId} and subject_id = #{subjectId}
+    </update>
+
+    <delete id="deleteLearningList" parameterType="SlpLearningList">
+        delete from slp_learning_list where user_id = #{userId} and subject_id = #{subjectId}
+    </delete>
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanofans.project.slp.mapper.SlpIssueReplyMapper">
+    <resultMap type="SlpIssueReply" id="SlpIssueReplyResult">
+        <id property="replyId" column="reply_id"/>
+        <result property="issueId" column="issue_id"/>
+        <result property="replyContent" column="reply_content"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="selectIssueReplyVo">
+        select r.reply_id, r.issue_id, r.reply_content, r.create_by, r.create_time
+        from slp_issue_reply r
+    </sql>
+
+    <select id="selectIssueReplyList" parameterType="Long" resultMap="SlpIssueReplyResult">
+        <include refid="selectIssueReplyVo"/>
+        where r.issue_id = #{issueId}
+        ORDER BY r.create_time ASC
+    </select>
+
+    <select id="selectIssueReplyById" parameterType="Long" resultMap="SlpIssueReplyResult">
+        <include refid="selectIssueReplyVo"/>
+        where r.reply_id = #{replyId}
+    </select>
+
+    <insert id="insertIssueReply" parameterType="SlpIssueReply" useGeneratedKeys="true" keyProperty="replyId">
+        insert into slp_issue_reply(
+        <if test="replyId != null and replyId != 0">reply_id,</if>
+        issue_id,
+        reply_content,
+        create_by,
+        create_time
+        ) values (
+        <if test="replyId != null and replyId != 0">#{replyId},</if>
+        #{issueId},
+        #{replyContent},
+        #{createBy},
+        sysdate()
+        )
+    </insert>
+
+    <update id="updateIssueReply" parameterType="SlpIssueReply">
+        update slp_issue_reply
+        set reply_content = #{replyContent}
+        where reply_id = #{replyId}
+    </update>
+
+    <delete id="deleteIssueReply" parameterType="Long">
+        delete from slp_issue_reply
+        where reply_id = #{replyId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanofans.project.slp.mapper.SlpSubjectContentMapper">
+    <resultMap type="SlpSubjectContent" id="SlpSubjectContentResult">
+        <id property="contentId" column="content_id"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="chapterId" column="chapter_id"/>
+        <result property="contentType" column="content_type"/>
+        <result property="content" column="content"/>
+        <result property="contentPath" column="content_path"/>
+    </resultMap>
+
+    <sql id="selectSubjectContentVo">
+        select sc.content_id, sc.subject_id, sc.chapter_id, sc.content_type, sc.content, sc.content_path
+        from slp_subject_content sc
+    </sql>
+
+    <select id="selectSubjectContentList" parameterType="SlpSubjectContent" resultMap="SlpSubjectContentResult">
+        <include refid="selectSubjectContentVo"/>
+        where subject_id = #{subjectId} AND chapter_id = #{chapterId} AND content_type = 0
+    </select>
+
+    <select id="selectSubjectContentFileList" parameterType="SlpSubjectContent" resultMap="SlpSubjectContentResult">
+        <include refid="selectSubjectContentVo"/>
+        where subject_id = #{subjectId}
+        <if test="chapterId != null and chapterId != 0">AND chapter_id = #{chapterId}</if>
+        AND content_type = 1
+    </select>
+
+    <insert id="insertSubjectContent" parameterType="SlpSubjectContent" useGeneratedKeys="true" keyProperty="contentId">
+        insert into slp_subject_content(subject_id,
+                                        chapter_id
+        <if test="contentType != null">,content_type</if>
+        <if test="content != null and content != ''">,content</if>
+        <if test="contentPath != null and contentPath != ''">,content_path</if>
+                )
+        values (#{subjectId},#{chapterId}
+        <if test="contentType != null">,#{contentType}</if>
+        <if test="content != null and content != ''">,#{content}</if>
+        <if test="contentPath != null and contentPath != ''">,#{contentPath}</if>
+                )
+    </insert>
+
+    <update id="updateSubjectContent" parameterType="SlpSubjectContent">
+        update slp_subject_content
+        <set>
+            <if test="content != null and content != ''">content = #{content},</if>
+        </set>
+        where content_id = #{contentId}
+    </update>
+
+    <delete id="deleteSubjectContent" parameterType="Long">
+        delete from slp_subject_content where content_id = #{subjectContentId}
+    </delete>
+
+</mapper>
